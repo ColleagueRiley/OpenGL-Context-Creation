@@ -665,6 +665,7 @@ int main(void) {
 ```
 
 ### Windows
+```c
 #include <windows.h>
 #include <GL/gl.h>
 
@@ -860,3 +861,4 @@ int main() {
     DestroyWindow(hwnd);
     return 0;
 }
+```
