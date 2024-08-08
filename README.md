@@ -69,10 +69,10 @@ Windows (WGL): wglGetProcAddress
 For example using GLX,
 
 ```c
-    glXCreateContextAttribsARB = glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");;
-    
-    (optional)
-    glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
+glXCreateContextAttribsARB = glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");;
+
+(optional)
+glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
 ```
 
 WGL is a little bit more complicated because it needs to start by creating a dummy context.\
@@ -124,16 +124,16 @@ wglMakeCurrent(dummy_dc, dummy_context);
 Now RGFW can load the functions and delete the dummy
 
 ```c
-    wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) (void*) wglGetProcAddress("wglCreateContextAttribsARB");
-    wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC) (void*)wglGetProcAddress("wglChoosePixelFormatARB");
+wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) (void*) wglGetProcAddress("wglCreateContextAttribsARB");
+wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC) (void*)wglGetProcAddress("wglChoosePixelFormatARB");
 
-    (optional)
-    wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
+(optional)
+wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
 
-    wglMakeCurrent(dummy_dc, 0);
-    wglDeleteContext(dummy_context);
-    ReleaseDC(dummyWin, dummy_dc);
-    DestroyWindow(dummyWin);
+wglMakeCurrent(dummy_dc, 0);
+wglDeleteContext(dummy_context);
+ReleaseDC(dummyWin, dummy_dc);
+DestroyWindow(dummyWin);
 ```
 
 
@@ -165,21 +165,21 @@ linux:
 
 windows:
 
-// windows makes you define the macros yourself, so I'll be using the hardcoded instead 
-static u32 attribs[] = {
-								0x2003, // WGL_ACCELERATION_ARB
-								0x2027, // WGL_FULL_ACCELERATION_ARB
-								0x201b, 8, // WGL_ALPHA_BITS_ARB
-								0x2022, 24, // WGL_DEPTH_BITS_ARB
-								0x2001, 1, // WGL_DRAW_TO_WINDOW_ARB
-								0x2015, 8, // WGL_RED_BITS_ARB
-								0x2017, 8, // WGL_GREEN_BITS_ARB
-								0x2019, 8, // WGL_BLUE_BITS_ARB
-								0x2013, 0x202B, // WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB
-								0x2010,		1, // WGL_SUPPORT_OPENGL_ARB
-								0x2014,	 32, // WGL_COLOR_BITS_ARB
-								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
+    // windows makes you define the macros yourself, so I'll be using the hardcoded instead 
+    static u32 attribs[] = {
+                                    0x2003, // WGL_ACCELERATION_ARB
+                                    0x2027, // WGL_FULL_ACCELERATION_ARB
+                                    0x201b, 8, // WGL_ALPHA_BITS_ARB
+                                    0x2022, 24, // WGL_DEPTH_BITS_ARB
+                                    0x2001, 1, // WGL_DRAW_TO_WINDOW_ARB
+                                    0x2015, 8, // WGL_RED_BITS_ARB
+                                    0x2017, 8, // WGL_GREEN_BITS_ARB
+                                    0x2019, 8, // WGL_BLUE_BITS_ARB
+                                    0x2013, 0x202B, // WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB
+                                    0x2010,		1, // WGL_SUPPORT_OPENGL_ARB
+                                    0x2014,	 32, // WGL_COLOR_BITS_ARB
+                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            };
 
 macos:
 		static u32 attribs[] = {
@@ -255,18 +255,18 @@ macOS:
 
 On macOS RGFW also sets the version here. 
 ```c
-    attribs[index] = 99;
-    attribs[index + 1] = 0x1000;
+attribs[index] = 99;
+attribs[index + 1] = 0x1000;
 
-    if (RGFW_majorVersion >= 4 || RGFW_majorVersion >= 3) {
-        attribs[index + 1] = (u32) ((RGFW_majorVersion >= 4) ? 0x4100 : 0x3200);
-    }
+if (RGFW_majorVersion >= 4 || RGFW_majorVersion >= 3) {
+    attribs[index + 1] = (u32) ((RGFW_majorVersion >= 4) ? 0x4100 : 0x3200);
+}
 ```
 
 Make sure the final two arguments are set to 0, this is how OpenGL/WGL/GLX/NSOpenGL knows to stop reading.
 
 ```c
-	RGFW_GL_ADD_ATTRIB(0, 0);
+RGFW_GL_ADD_ATTRIB(0, 0);
 ```
 
 
@@ -278,73 +278,73 @@ Now that the list is created, it can be used to create the pixel format.
 GLX Handles this by creating an array of `GLXFBConfig` based on the attributes.
 
 ```c
-        i32 fbcount;
-		GLXFBConfig* fbc = glXChooseFBConfig((Display*) display, DefaultScreen(display), (i32*) attribs, &fbcount);
+i32 fbcount;
+GLXFBConfig* fbc = glXChooseFBConfig((Display*) display, DefaultScreen(display), (i32*) attribs, &fbcount);
 
-		i32 best_fbc = -1;
+i32 best_fbc = -1;
 
-		if (fbcount == 0) {
-			printf("Failed to find any valid GLX visual configs\n");
-			return NULL;
-		}
+if (fbcount == 0) {
+    printf("Failed to find any valid GLX visual configs\n");
+    return NULL;
+}
 ```
 
 Then it uses the generated array to find the closest matching FBConfig object. (This is where RGFW_SAMPLES comes in)
 
 ```c
-		u32 i;
-		for (i = 0; i < (u32)fbcount; i++) {
-			XVisualInfo* vi = glXGetVisualFromFBConfig((Display*) display, fbc[i]);
-                        if (vi == NULL)
-				continue;
-                        
-			XFree(vi);
+u32 i;
+for (i = 0; i < (u32)fbcount; i++) {
+    XVisualInfo* vi = glXGetVisualFromFBConfig((Display*) display, fbc[i]);
+                if (vi == NULL)
+        continue;
+                
+    XFree(vi);
 
-			i32 samp_buf, samples;
-			glXGetFBConfigAttrib((Display*) display, fbc[i], GLX_SAMPLE_BUFFERS, &samp_buf);
-			glXGetFBConfigAttrib((Display*) display, fbc[i], GLX_SAMPLES, &samples);
-			
-			if ((best_fbc < 0 || samp_buf) && (samples == RGFW_SAMPLES || best_fbc == -1)) {
-				best_fbc = i;
-			}
-		}
+    i32 samp_buf, samples;
+    glXGetFBConfigAttrib((Display*) display, fbc[i], GLX_SAMPLE_BUFFERS, &samp_buf);
+    glXGetFBConfigAttrib((Display*) display, fbc[i], GLX_SAMPLES, &samples);
+    
+    if ((best_fbc < 0 || samp_buf) && (samples == RGFW_SAMPLES || best_fbc == -1)) {
+        best_fbc = i;
+    }
+}
 
-		if (best_fbc == -1) {
-			printf("Failed to get a valid GLX visual\n");
-			return NULL;
-		}
+if (best_fbc == -1) {
+    printf("Failed to get a valid GLX visual\n");
+    return NULL;
+}
 
-		GLXFBConfig bestFbc = fbc[best_fbc];
+GLXFBConfig bestFbc = fbc[best_fbc];
 ```
 
 Once it finds the closest matching object, it gets the X11 visual (or pixel format) from the array and frees the array.
 
 ```c
-    /* Get a visual */
-    XVisualInfo* vi = glXGetVisualFromFBConfig((Display*) display, bestFbc);
-    
-    XFree(fbc);
+/* Get a visual */
+XVisualInfo* vi = glXGetVisualFromFBConfig((Display*) display, bestFbc);
+
+XFree(fbc);
 ```
 
 Now this Visual can be used to create a window and/or colormap.
 
 ```c
-    XSetWindowAttributes swa;
-    Colormap cmap;
+XSetWindowAttributes swa;
+Colormap cmap;
 
-    swa.colormap = cmap = XCreateColormap((Display*) display,
-        DefaultRootWindow(display),
-        vi->visual, AllocNone);
+swa.colormap = cmap = XCreateColormap((Display*) display,
+    DefaultRootWindow(display),
+    vi->visual, AllocNone);
 
-    swa.background_pixmap = None;
-    swa.border_pixel = 0;
-    swa.event_mask = event_mask;
-    
-    swa.background_pixel = 0;
+swa.background_pixmap = None;
+swa.border_pixel = 0;
+swa.event_mask = event_mask;
 
-    Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) display), x, y, w, h,
-        0, vi->depth, InputOutput, vi->visual,
-        CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
+swa.background_pixel = 0;
+
+Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) display), x, y, w, h,
+    0, vi->depth, InputOutput, vi->visual,
+    CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
 ```
 
 #### WGL
@@ -362,27 +362,27 @@ RGFW needs some WGL defines for creating the context:
 For WGL, RGFW has to first create a win32 pixel format. 
 
 ```c
-    PIXELFORMATDESCRIPTOR pfd2 = (PIXELFORMATDESCRIPTOR){ sizeof(pfd2), 1, pfd_flags, PFD_TYPE_RGBA, 32, 8, PFD_MAIN_PLANE, 24, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+PIXELFORMATDESCRIPTOR pfd2 = (PIXELFORMATDESCRIPTOR){ sizeof(pfd2), 1, pfd_flags, PFD_TYPE_RGBA, 32, 8, PFD_MAIN_PLANE, 24, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 ```
 
 Then RGFW can create a WGL pixel format based on the attribs array.
 
 ```c
-    int pixel_format2;
-    UINT num_formats;
-    wglChoosePixelFormatARB(hdc, attribs, 0, 1, &pixel_format2, &num_formats);
-    if (!num_formats) {
-        printf("Failed to create a pixel format for WGL.\n");
-    }
+int pixel_format2;
+UINT num_formats;
+wglChoosePixelFormatARB(hdc, attribs, 0, 1, &pixel_format2, &num_formats);
+if (!num_formats) {
+    printf("Failed to create a pixel format for WGL.\n");
+}
 ```
 
 Now RGFW can merge the two as one big format and set it as the format for your window.
 
 ```c
-    DescribePixelFormat(hdc, pixel_format2, sizeof(pfd2), &pfd2);
-    if (!SetPixelFormat(hdc, pixel_format2, &pfd2)) {
-        printf("Failed to set the WGL pixel format.\n");
-    }
+DescribePixelFormat(hdc, pixel_format2, sizeof(pfd2), &pfd2);
+if (!SetPixelFormat(hdc, pixel_format2, &pfd2)) {
+    printf("Failed to set the WGL pixel format.\n");
+}
 ```
 
 
@@ -409,35 +409,35 @@ If you're following along for MacOS, you can skip step 3.
 NOTE: RGFW defines this enum and these variables so the user can control the OpenGL version:
 
 ```c
-    typedef u8 RGFW_GL_profile; enum { RGFW_GL_CORE = 0,  RGFW_GL_COMPATIBILITY  };
-	i32 RGFW_majorVersion = 0, RGFW_minorVersion = 0;
-	b8 RGFW_profile = RGFW_GL_CORE;
+typedef u8 RGFW_GL_profile; enum { RGFW_GL_CORE = 0,  RGFW_GL_COMPATIBILITY  };
+i32 RGFW_majorVersion = 0, RGFW_minorVersion = 0;
+b8 RGFW_profile = RGFW_GL_CORE;
 ```
 
 ### glx 
 Now it's time to create the attribute array for the GL context creation and load the OpenGL version you want:
 
 ```c
-    i32 context_attribs[7] = { 0, 0, 0, 0, 0, 0, 0 };
-    context_attribs[0] = GLX_CONTEXT_PROFILE_MASK_ARB;
-    if (RGFW_profile == RGFW_GL_CORE) 
-        context_attribs[1] = GLX_CONTEXT_CORE_PROFILE_BIT_ARB;
-    else 
-        context_attribs[1] = GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
-    
-    if (RGFW_majorVersion || RGFW_minorVersion) {
-        context_attribs[2] = GLX_CONTEXT_MAJOR_VERSION_ARB;
-        context_attribs[3] = RGFW_majorVersion;
-        context_attribs[4] = GLX_CONTEXT_MINOR_VERSION_ARB;
-        context_attribs[5] = RGFW_minorVersion;
-    }
+i32 context_attribs[7] = { 0, 0, 0, 0, 0, 0, 0 };
+context_attribs[0] = GLX_CONTEXT_PROFILE_MASK_ARB;
+if (RGFW_profile == RGFW_GL_CORE) 
+    context_attribs[1] = GLX_CONTEXT_CORE_PROFILE_BIT_ARB;
+else 
+    context_attribs[1] = GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+
+if (RGFW_majorVersion || RGFW_minorVersion) {
+    context_attribs[2] = GLX_CONTEXT_MAJOR_VERSION_ARB;
+    context_attribs[3] = RGFW_majorVersion;
+    context_attribs[4] = GLX_CONTEXT_MINOR_VERSION_ARB;
+    context_attribs[5] = RGFW_minorVersion;
+}
 ```
 
 Finally, the context can be created using the context_attribs array:
 
 ```c
-    ctx = glXCreateContextAttribsARB((Display*) display, bestFbc, NULL, True, context_attribs);
-    glXMakeCurrent(display, window, ctx); // make the window the current so it can be rendered to in the same thread
+ctx = glXCreateContextAttribsARB((Display*) display, bestFbc, NULL, True, context_attribs);
+glXMakeCurrent(display, window, ctx); // make the window the current so it can be rendered to in the same thread
 ```
 
 ### WGL
@@ -447,36 +447,36 @@ First WGL needs to create an attribs array for setting the OpenGL Version
 It also uses a helper macro called SET_ATTRIB
 
 ```c
-    #define SET_ATTRIB(a, v) { \
-        assert(((size_t) index + 1) < sizeof(context_attribs) / sizeof(context_attribs[0])); \
-        context_attribs[index++] = a; \
-        context_attribs[index++] = v; \
-    }
+#define SET_ATTRIB(a, v) { \
+    assert(((size_t) index + 1) < sizeof(context_attribs) / sizeof(context_attribs[0])); \
+    context_attribs[index++] = a; \
+    context_attribs[index++] = v; \
+}
 
-    /* create opengl/WGL context for the specified version */ 
-    u32 index = 0;
-    i32 context_attribs[40];
+/* create opengl/WGL context for the specified version */ 
+u32 index = 0;
+i32 context_attribs[40];
 
-    if (RGFW_profile == RGFW_GL_CORE) {
-        SET_ATTRIB(WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB);
-    }
-    else {
-        SET_ATTRIB(WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
-    }
+if (RGFW_profile == RGFW_GL_CORE) {
+    SET_ATTRIB(WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB);
+}
+else {
+    SET_ATTRIB(WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB);
+}
 
-    if (RGFW_majorVersion || RGFW_minorVersion) {
-        SET_ATTRIB(WGL_CONTEXT_MAJOR_VERSION_ARB, RGFW_majorVersion);
-        SET_ATTRIB(WGL_CONTEXT_MINOR_VERSION_ARB, RGFW_minorVersion);
-    }
+if (RGFW_majorVersion || RGFW_minorVersion) {
+    SET_ATTRIB(WGL_CONTEXT_MAJOR_VERSION_ARB, RGFW_majorVersion);
+    SET_ATTRIB(WGL_CONTEXT_MINOR_VERSION_ARB, RGFW_minorVersion);
+}
 
-    SET_ATTRIB(0, 0);
+SET_ATTRIB(0, 0);
 ```
 
 Now the context can be created:
 
 ```c
-    ctx = (HGLRC)wglCreateContextAttribsARB(hdc, NULL, context_attribs);
-    wglMakeCurrent(hdc, ctx); // make the window the current so it can be rendered to in the same thread
+ctx = (HGLRC)wglCreateContextAttribsARB(hdc, NULL, context_attribs);
+wglMakeCurrent(hdc, ctx); // make the window the current so it can be rendered to in the same thread
 ```
 
 
