@@ -1,9 +1,5 @@
 # RGFW Under the Hood: OpenGL context creation
 
-NOTE: Currently this article is a WIP and will be updated soon.
-
-
-
 ## Introduction
 In my experience working on RGFW, one of the most annoying parts of working with low-level APIs is creating an OpenGL context.
 This is not because it's hard, but because there are many not-so-obvious steps that you must do correctly to create your OpenGL context. 
