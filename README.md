@@ -7,7 +7,7 @@ NOTE: Currently this article is a WIP and will be updated soon.
 ## Introduction
 In my experience working on RGFW, one of the most annoying parts of working with low-level APIs is creating an OpenGL context.
 This is not because it's hard, but because there are many not-so-obvious steps that you must do correctly to create your OpenGL context. 
-This tutorial explains how to create an OpenGL context for Windows, MacOS, and Linux so that way others don't have to struggle with figuring it out. 
+This tutorial explains how to create an OpenGL context for Windows, MacOS and Linux so that way others don't have to struggle with figuring it out. 
 
 NOTE: MacOS code will be written with a Cocoa C Wrapper in mind (see the RGFW.h or Silicon.h)
 
@@ -63,12 +63,14 @@ Windows (WGL):
     static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 ```
 
-Once the functions are defined, RGFW loads the functions with these API functions:
+Once the functions are defined, RGFW loads the functions with these API calls:
 
 ```c
 X11 (GLX): glXGetProcAddress aad glXGetProcAddressARB
 Windows (WGL): wglGetProcAddress
 ```
+
+For example using GLX,
 
 ```c
     glXCreateContextAttribsARB = glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");;
@@ -82,9 +84,7 @@ This dummy context is used by WGL to load the functions.
 
 ### WGL dummy 
 
-First, you have to create a dummy window, RGFW also uses this dummy window to get the height offset for the title bar. 
-
-Then get the device context from the dummy window.
+First, RGFW has to create a dummy window and device context, RGFW also uses this dummy window to get the height offset for the title bar. 
 
 ```c
 HWND dummyWin = CreateWindowA(Class.lpszClassName, name, window_style, x, y, w, h, 0, 0, inh, 0);
@@ -92,7 +92,7 @@ HWND dummyWin = CreateWindowA(Class.lpszClassName, name, window_style, x, y, w, 
 HDC dummy_dc = GetDC(dummyWin);
 ```
 
-After that, you need to create a dummy pixel format for the dummy window and dummy OpenGL context.
+After that, RGFW creates a dummy pixel format for the dummy window and dummy OpenGL context.
 
 ```c
 u32 pfd_flags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
@@ -117,10 +117,8 @@ int pixel_format = ChoosePixelFormat(dummy_dc, &pfd);
 SetPixelFormat(dummy_dc, pixel_format, &pfd);
 ```
 
-Now you create a dummy context.\
-This context will be using the default OpenGL context, probably Opengl ~1.0. 
-
-Then make it the current context
+Now RGFW can create a dummy context and set it to be the current context.\
+This context will be using the default OpenGL ~1.0 context, OpenGL.
 
 ```c
 HGLRC dummy_context = wglCreateContext(dummy_dc);
@@ -216,15 +214,13 @@ RGFW uses a macro to fill in optional arguments
 		}
 ```
 
-Then RGFW fills in the optional arguments 
-
-I'm going to split this up between each platform again.
-
 RGFW defines variables that can be changed by the user to fill in these arguments. 
 
 ```c
 i32 RGFW_STENCIL = 0, RGFW_SAMPLES = 0, RGFW_STEREO = GL_FALSE, RGFW_AUX_BUFFERS = 0, RGFW_DOUBLE_BUFFER = 1;
 ```
+
+I'm going to split the arguments up between each platform.
 
 ```c
 linux:
@@ -261,7 +257,7 @@ macOS:
     }
 ```
 
-On macOS you'd also set the version here rather than later. 
+On macOS RGFW also sets the version here. 
 ```c
     attribs[index] = 99;
     attribs[index + 1] = 0x1000;
@@ -283,7 +279,7 @@ Make sure the final two arguments are set to 0, this is how OpenGL/WGL/GLX/NSOpe
 Now that the list is created, it can be used to create the pixel format.
 
 #### GLX
-GLX Handles this by creating an array of `GLXFBConfig` based on the attitudes.
+GLX Handles this by creating an array of `GLXFBConfig` based on the attributes.
 
 ```c
         i32 fbcount;
@@ -367,13 +363,13 @@ RGFW needs some WGL defines for creating the context:
 #define WGL_CONTEXT_PROFILE_MASK_ARB              0x9126
 ```
 
-For WGL, you have to first create a win32 pixel format. 
+For WGL, RGFW has to first create a win32 pixel format. 
 
 ```c
     PIXELFORMATDESCRIPTOR pfd2 = (PIXELFORMATDESCRIPTOR){ sizeof(pfd2), 1, pfd_flags, PFD_TYPE_RGBA, 32, 8, PFD_MAIN_PLANE, 24, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 ```
 
-Then you can create a WGL pixel format based on the attribs array.
+Then RGFW can create a WGL pixel format based on the attribs array.
 
 ```c
     int pixel_format2;
@@ -384,7 +380,7 @@ Then you can create a WGL pixel format based on the attribs array.
     }
 ```
 
-Now you can merge the two as one big format and set it as the format for your window.
+Now RGFW can merge the two as one big format and set it as the format for your window.
 
 ```c
     DescribePixelFormat(hdc, pixel_format2, sizeof(pfd2), &pfd2);
@@ -396,7 +392,7 @@ Now you can merge the two as one big format and set it as the format for your wi
 
 ## NSOpenGL
 
-For MacOS, you just have to create the pixel format and then init a view based on the format for OpenGL.
+For MacOS, RGFW just has to create the pixel format and then init a view based on the format for OpenGL.
 
 ```c
 void* format = NSOpenGLPixelFormat_initWithAttributes(attribs);
@@ -414,7 +410,7 @@ If you're following along for MacOS, you can skip step 3.
 
 ## Step 3 (Create your OpenGL context using an attribute array to set the OpenGL version)
 
-NOTE RGFW defines this enum and these variables so the user can control the OpenGL version:
+NOTE: RGFW defines this enum and these variables so the user can control the OpenGL version:
 
 ```c
     typedef u8 RGFW_GL_profile; enum { RGFW_GL_CORE = 0,  RGFW_GL_COMPATIBILITY  };
@@ -423,7 +419,8 @@ NOTE RGFW defines this enum and these variables so the user can control the Open
 ```
 
 ### glx 
-Now it's time to create the attribute for the GL version
+Now it's time to create the attribute array for the GL context creation and load the OpenGL version you want:
+
 ```c
     i32 context_attribs[7] = { 0, 0, 0, 0, 0, 0, 0 };
     context_attribs[0] = GLX_CONTEXT_PROFILE_MASK_ARB;
@@ -440,8 +437,7 @@ Now it's time to create the attribute for the GL version
     }
 ```
 
-
-Now the context can be created:
+Finally, the context can be created using the context_attribs array:
 
 ```c
     ctx = glXCreateContextAttribsARB((Display*) display, bestFbc, NULL, True, context_attribs);
