@@ -24,6 +24,12 @@ int main(void) {
     typedef void ( *PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
     PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
 
+	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
+    glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
+ 
+	if (glXCreateContextAttribsARB == NULL)
+		return -1;
+
     static uint32_t attribs[] = {
                             GLX_X_VISUAL_TYPE,      GLX_TRUE_COLOR,
                             GLX_DEPTH_SIZE,         24,                            
@@ -56,8 +62,7 @@ int main(void) {
     }
  
     int s = DefaultScreen(display);
- 
-
+  
     int32_t fbcount;
     GLXFBConfig* fbc = glXChooseFBConfig((Display*) display, DefaultScreen(display), (int32_t*) attribs, &fbcount);
 
@@ -114,10 +119,7 @@ int main(void) {
         CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
     
     XSelectInput(display, window, ExposureMask | KeyPressMask);
-    
-    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
-    glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
-    
+      
     int32_t context_attribs[7] = { 0, 0, 0, 0, 0, 0, 0 };
     context_attribs[0] = GLX_CONTEXT_PROFILE_MASK_ARB;
     if (profile == GL_CORE) 
