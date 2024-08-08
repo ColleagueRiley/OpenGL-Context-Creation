@@ -1,3 +1,5 @@
+// compile with gcc x11.c -lX11 -lGL
+
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 

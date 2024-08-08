@@ -1,3 +1,5 @@
+// compile with gcc winapi.c -lopengl32 -lgdi32
+
 #include <windows.h>
 #include <GL/gl.h>
 

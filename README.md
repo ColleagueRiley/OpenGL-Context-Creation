@@ -510,6 +510,8 @@ macOS (NSOpenGL):
 
 ### X11
 ```c
+// compile with gcc x11.c -lX11 -lGL
+
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
@@ -666,6 +668,8 @@ int main(void) {
 
 ### Windows
 ```c
+
+// compile with gcc winapi.c -lopengl32 -lgdi32
 #include <windows.h>
 #include <GL/gl.h>
 
