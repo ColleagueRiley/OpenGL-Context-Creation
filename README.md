@@ -139,6 +139,8 @@ DestroyWindow(dummyWin);
 
 ## Step 2 (Create an OpenGL pixel format (or Visual on X11) using an attribute list)
 
+RGFW needs to create a pixel format so the window knows how to draw the data it gets and so OpenGL knows the draw format we want. 
+
 ### Step 2.1: creating the attribute list
 
 To create an OpenGL pixel format using an attribute list, RGFW has a function that creates an attribute list, `RGFW_initFormatAttribs` for the pixel format.
