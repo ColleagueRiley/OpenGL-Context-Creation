@@ -349,8 +349,8 @@ swa.event_mask = event_mask;
 swa.background_pixel = 0;
 
 Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) display), x, y, w, h,
-																0, vi->depth, InputOutput, vi->visual,
-    									CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
+				0, vi->depth, InputOutput, vi->visual,
+				CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
 ```
 
 #### WGL
