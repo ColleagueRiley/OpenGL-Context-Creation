@@ -71,7 +71,7 @@ For example using GLX,
 ```c
 glXCreateContextAttribsARB = glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
 
-(optional)
+// (optional)
 glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
 ```
 
@@ -127,7 +127,7 @@ Now RGFW can load the functions and delete the dummy
 wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) (void*) wglGetProcAddress("wglCreateContextAttribsARB");
 wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC) (void*)wglGetProcAddress("wglChoosePixelFormatARB");
 
-(optional)
+// (optional)
 wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
 
 wglMakeCurrent(dummy_dc, 0);
@@ -494,13 +494,13 @@ This is the easy part.
 
 
 ```c
-Linux (GLX):
+// Linux (GLX):
     glXDestroyContext((Display*) display, ctx);
 
-windows (WGL):
+// windows (WGL):
     wglDeleteContext((HGLRC) ctx);
 
-macOS (NSOpenGL):
+// macOS (NSOpenGL):
     // I think macOS NSOpenGL stuff is freed automatically when everything else is freed 
 ```
 
