@@ -22,57 +22,57 @@ EGL will not be included in this article because the setup is far easier.
 First RGFW needs to load these functions
 
 ```c
-X11 (GLX):
-    glXCreateContextAttribsARB
-    glXSwapIntervalEXT (optional)
+//X11 (GLX):
+	glXCreateContextAttribsARB
+	glXSwapIntervalEXT //(optional)
 
-Windows (WGL):
-    wglCreateContextAttribsARB
-    wglChoosePixelFormatARB
-    wglSwapIntervalEXT (optional)
+//Windows (WGL):
+	wglCreateContextAttribsARB
+	wglChoosePixelFormatARB
+	wglSwapIntervalEXT //(optional)
 
-Cocoa (NSOpenGL)
-    (none)
+//Cocoa (NSOpenGL)
+	(none)
 ```
 
 It needs to load these functions because they're extension functions provided by the hardware vendor. By default, `wglCreateContext` or `glXCreateContext` will create an OpenGL ~1.0 context that probably uses software rendering. 
 
 To load the extension functions RGFW has to start by defining them.
 ```c
-X11 (GLX):
-    typedef GLXContext(*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-    static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
-    
-    (optional)
-    typedef void ( *PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
-    PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
+// X11 (GLX):
+	typedef GLXContext(*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+	static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+	
+//	(optional)
+	typedef void ( *PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
+	PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
 
-Windows (WGL):
+// Windows (WGL):
 	typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC hdc, HGLRC hglrc, const int *attribList);
 	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
 	
-    typedef HRESULT (APIENTRY* PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
+	typedef HRESULT (APIENTRY* PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 	static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
-
-    (optional)
-    typedef BOOL(APIENTRY* PFNWGLSWAPINTERVALEXTPROC)(int interval);
-    static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
+	
+//	(optional)
+	typedef BOOL(APIENTRY* PFNWGLSWAPINTERVALEXTPROC)(int interval);
+	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 ```
 
 Once the functions are defined, RGFW loads the functions with these API calls:
 
 ```c
-X11 (GLX): glXGetProcAddress aad glXGetProcAddressARB
-Windows (WGL): wglGetProcAddress
+/* X11 (GLX): */ glXGetProcAddress aad glXGetProcAddressARB
+/* Windows (WGL): */ wglGetProcAddress
 ```
 
 For example using GLX,
 
 ```c
-glXCreateContextAttribsARB = glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");;
+glXCreateContextAttribsARB = glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
 
 (optional)
-glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
+glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
 ```
 
 WGL is a little bit more complicated because it needs to start by creating a dummy context.\
@@ -152,45 +152,49 @@ For this tutorial, I'll be separating an array for each OS rather than using one
 ```c
 linux:
     static u32 attribs[] = {
-                            GLX_X_VISUAL_TYPE,      GLX_TRUE_COLOR,
-                            GLX_DEPTH_SIZE,         24,                            
-                            GLX_X_RENDERABLE,       1,
-                            GLX_RED_SIZE,           8,
-                            GLX_GREEN_SIZE,         8,
-                            GLX_BLUE_SIZE,          8,
-                            GLX_ALPHA_SIZE,         8,
-                            GLX_RENDER_TYPE,        GLX_RGBA_BIT,
-                            GLX_DRAWABLE_TYPE,      GLX_WINDOW_BIT,
-
-                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	    GLX_X_VISUAL_TYPE,      GLX_TRUE_COLOR,
+	    GLX_DEPTH_SIZE,         24,                            
+	    GLX_X_RENDERABLE,       1,
+	    GLX_RED_SIZE,           8,
+	    GLX_GREEN_SIZE,         8,
+	    GLX_BLUE_SIZE,          8,
+	    GLX_ALPHA_SIZE,         8,
+	    GLX_RENDER_TYPE,        GLX_RGBA_BIT,
+	    GLX_DRAWABLE_TYPE,      GLX_WINDOW_BIT,
+	
+	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
 windows:
 
-    // windows makes you define the macros yourself, so I'll be using the hardcoded instead 
+    // windows makes you define the macros yourself (or you can use wglext.h (which may or may not be installed on your system)
+	// https://registry.khronos.org/OpenGL/api/GL/wglext.h
+	// so I'll be using the hardcoded instead 
     static u32 attribs[] = {
-                                    0x2003, // WGL_ACCELERATION_ARB
-                                    0x2027, // WGL_FULL_ACCELERATION_ARB
-                                    0x201b, 8, // WGL_ALPHA_BITS_ARB
-                                    0x2022, 24, // WGL_DEPTH_BITS_ARB
-                                    0x2001, 1, // WGL_DRAW_TO_WINDOW_ARB
-                                    0x2015, 8, // WGL_RED_BITS_ARB
-                                    0x2017, 8, // WGL_GREEN_BITS_ARB
-                                    0x2019, 8, // WGL_BLUE_BITS_ARB
-                                    0x2013, 0x202B, // WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB
-                                    0x2010,		1, // WGL_SUPPORT_OPENGL_ARB
-                                    0x2014,	 32, // WGL_COLOR_BITS_ARB
-                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            };
+	    0x2003, // WGL_ACCELERATION_ARB
+	    0x2027, // WGL_FULL_ACCELERATION_ARB
+	    0x201b, 8, // WGL_ALPHA_BITS_ARB
+	    0x2022, 24, // WGL_DEPTH_BITS_ARB
+	    0x2001, 1, // WGL_DRAW_TO_WINDOW_ARB
+	    0x2015, 8, // WGL_RED_BITS_ARB
+	    0x2017, 8, // WGL_GREEN_BITS_ARB
+	    0x2019, 8, // WGL_BLUE_BITS_ARB
+	    0x2013, 0x202B, // WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB
+	    0x2010,		1, // WGL_SUPPORT_OPENGL_ARB
+	    0x2014,	 32, // WGL_COLOR_BITS_ARB
+	    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
 
+// MacOS is using C, not objective C so the headers required aren't included
+// That means you'd have to define them yourself (you can find the defines in the MacOS documentation) 
 macos:
-		static u32 attribs[] = {
-								11      , 8, // alpha size
-								24      , 24, // depth size
-								72, // NSOpenGLPFANoRecovery
-								8, 24, // NSOpenGLPFAColorSize
-								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		};
+	static u32 attribs[] = {
+		11      , 8, // alpha size
+		24      , 24, // depth size
+		72, // NSOpenGLPFANoRecovery
+		8, 24, // NSOpenGLPFAColorSize
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	};
 ```
 
 You may notice the extra 0s at the bottom of the array, that's for optional arguments. 
@@ -205,11 +209,11 @@ RGFW uses a macro to fill in optional arguments
 
 ```c
 #define RGFW_GL_ADD_ATTRIB(attrib, attVal) \
-		if (attVal) { \
-			attribs[index] = attrib;\
-			attribs[index + 1] = attVal;\
-			index += 2;\
-		}
+	if (attVal) { \
+		attribs[index] = attrib;\
+		attribs[index + 1] = attVal;\
+		index += 2;\
+	}
 ```
 
 RGFW defines variables that can be changed by the user to fill in these arguments. 
@@ -296,8 +300,8 @@ Then it uses the generated array to find the closest matching FBConfig object. (
 ```c
 u32 i;
 for (i = 0; i < (u32)fbcount; i++) {
-    XVisualInfo* vi = glXGetVisualFromFBConfig((Display*) display, fbc[i]);
-                if (vi == NULL)
+    XVisualInfo* vi = glXGetVisualFromFBConfig((Display*) display, fbc[I]);
+	if (vi == NULL)
         continue;
                 
     XFree(vi);
@@ -345,8 +349,8 @@ swa.event_mask = event_mask;
 swa.background_pixel = 0;
 
 Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) display), x, y, w, h,
-    0, vi->depth, InputOutput, vi->visual,
-    CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
+																0, vi->depth, InputOutput, vi->visual,
+    									CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
 ```
 
 #### WGL
@@ -354,6 +358,7 @@ Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) d
 RGFW needs some WGL defines for creating the context:
 
 ```c
+// Again, these can be found in wglext.h https://registry.khronos.org/OpenGL/api/GL/wglext.h
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
 #define WGL_CONTEXT_MAJOR_VERSION_ARB             0x2091
@@ -513,14 +518,14 @@ macOS (NSOpenGL):
 #include <stdint.h>
 
 typedef GLXContext(*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-typedef void ( *PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
+typedef void (*PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
 
 #define GL_ADD_ATTRIB(attrib, attVal) \
-		if (attVal) { \
-			attribs[index] = attrib;\
-			attribs[index + 1] = attVal;\
-			index += 2;\
-		}
+	if (attVal) { \
+		attribs[index] = attrib;\
+		attribs[index + 1] = attVal;\
+		index += 2;\
+	}
 
 typedef uint8_t GL_profile; enum  { GL_CORE = 0,  GL_COMPATIBILITY  };
 int32_t majorVersion = 0, minorVersion = 0;
@@ -536,17 +541,17 @@ int main(void) {
     glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress((GLubyte*) "glXSwapIntervalEXT");
 
     static uint32_t attribs[] = {
-                            GLX_X_VISUAL_TYPE,      GLX_TRUE_COLOR,
-                            GLX_DEPTH_SIZE,         24,                            
-                            GLX_X_RENDERABLE,       1,
-                            GLX_RED_SIZE,           8,
-                            GLX_GREEN_SIZE,         8,
-                            GLX_BLUE_SIZE,          8,
-                            GLX_ALPHA_SIZE,         8,
-                            GLX_RENDER_TYPE,        GLX_RGBA_BIT,
-                            GLX_DRAWABLE_TYPE,      GLX_WINDOW_BIT,
+		GLX_X_VISUAL_TYPE,      GLX_TRUE_COLOR,
+		GLX_DEPTH_SIZE,         24,                            
+		GLX_X_RENDERABLE,       1,
+		GLX_RED_SIZE,           8,
+		GLX_GREEN_SIZE,         8,
+		GLX_BLUE_SIZE,          8,
+		GLX_ALPHA_SIZE,         8,
+		GLX_RENDER_TYPE,        GLX_RGBA_BIT,
+		GLX_DRAWABLE_TYPE,      GLX_WINDOW_BIT,
 
-                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     
     size_t index = (sizeof(attribs) / sizeof(attribs[0])) - 13;
@@ -610,8 +615,8 @@ int main(void) {
     Colormap cmap;
 
     swa.colormap = cmap = XCreateColormap((Display*) display,
-        DefaultRootWindow(display),
-        vi->visual, AllocNone);
+							        DefaultRootWindow(display),
+							        vi->visual, AllocNone);
 
     swa.background_pixmap = None;
     swa.border_pixel = 0;
@@ -620,8 +625,8 @@ int main(void) {
     swa.background_pixel = 0;
 
     Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) display), 400, 400, 200, 200,
-        0, vi->depth, InputOutput, vi->visual,
-        CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
+												        0, vi->depth, InputOutput, vi->visual,
+												        CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
     
     XSelectInput(display, window, ExposureMask | KeyPressMask);
     
@@ -744,19 +749,19 @@ int main() {
 
     // windows makes you define the macros yourself, so I'll be using the hardcoded instead 
     static u32 attribs[] = {
-                                    0x2003, // WGL_ACCELERATION_ARB
-                                    0x2027, // WGL_FULL_ACCELERATION_ARB
-                                    0x201b, 8, // WGL_ALPHA_BITS_ARB
-                                    0x2022, 24, // WGL_DEPTH_BITS_ARB
-                                    0x2001, 1, // WGL_DRAW_TO_WINDOW_ARB
-                                    0x2015, 8, // WGL_RED_BITS_ARB
-                                    0x2017, 8, // WGL_GREEN_BITS_ARB
-                                    0x2019, 8, // WGL_BLUE_BITS_ARB
-                                    0x2013, 0x202B, // WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB
-                                    0x2010,		1, // WGL_SUPPORT_OPENGL_ARB
-                                    0x2014,	 32, // WGL_COLOR_BITS_ARB
-                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            };
+		0x2003, // WGL_ACCELERATION_ARB
+		0x2027, // WGL_FULL_ACCELERATION_ARB
+		0x201b, 8, // WGL_ALPHA_BITS_ARB
+		0x2022, 24, // WGL_DEPTH_BITS_ARB
+		0x2001, 1, // WGL_DRAW_TO_WINDOW_ARB
+		0x2015, 8, // WGL_RED_BITS_ARB
+		0x2017, 8, // WGL_GREEN_BITS_ARB
+		0x2019, 8, // WGL_BLUE_BITS_ARB
+		0x2013, 0x202B, // WGL_PIXEL_TYPE_ARB,  WGL_TYPE_RGBA_ARB
+		0x2010,		1, // WGL_SUPPORT_OPENGL_ARB
+		0x2014,	 32, // WGL_COLOR_BITS_ARB
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	};
 
     size_t index = (sizeof(attribs) / sizeof(attribs[0])) - 13;
     #define RGFW_GL_ADD_ATTRIB(attrib, attVal) \
