@@ -338,9 +338,7 @@ Now this Visual can be used to create a window and/or colormap.
 XSetWindowAttributes swa;
 Colormap cmap;
 
-swa.colormap = cmap = XCreateColormap((Display*) display,
-    DefaultRootWindow(display),
-    vi->visual, AllocNone);
+swa.colormap = cmap = XCreateColormap((Display*) display, DefaultRootWindow(display), vi->visual, AllocNone);
 
 swa.background_pixmap = None;
 swa.border_pixel = 0;
@@ -614,9 +612,7 @@ int main(void) {
     XSetWindowAttributes swa;
     Colormap cmap;
 
-    swa.colormap = cmap = XCreateColormap((Display*) display,
-							        DefaultRootWindow(display),
-							        vi->visual, AllocNone);
+    swa.colormap = cmap = XCreateColormap((Display*) display, DefaultRootWindow(display), vi->visual, AllocNone);
 
     swa.background_pixmap = None;
     swa.border_pixel = 0;
@@ -625,8 +621,8 @@ int main(void) {
     swa.background_pixel = 0;
 
     Window window = XCreateWindow((Display*) display, DefaultRootWindow((Display*) display), 400, 400, 200, 200,
-												        0, vi->depth, InputOutput, vi->visual,
-												        CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
+						0, vi->depth, InputOutput, vi->visual,
+						CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &swa);
     
     XSelectInput(display, window, ExposureMask | KeyPressMask);
     
