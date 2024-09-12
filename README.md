@@ -21,19 +21,9 @@ EGL will not be included in this article because the setup is far easier.
 
 First RGFW needs to load these functions
 
-```c
-//X11 (GLX):
-	glXCreateContextAttribsARB
-	glXSwapIntervalEXT //(optional)
+X11 (GLX): [`glXCreateContextAttribsARB`](https://registry.khronos.org/OpenGL/extensions/ARB/GLX_ARB_create_context.txt) for creating an accelerated OpenGL context and optionally [`glXSwapIntervalEXT`](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_swap_control.txt) for changing the swap interval.
 
-//Windows (WGL):
-	wglCreateContextAttribsARB
-	wglChoosePixelFormatARB
-	wglSwapIntervalEXT //(optional)
-
-//Cocoa (NSOpenGL)
-	(none)
-```
+WinAPI (WGL):  [`wglCreateContextAttribsARB`](https://registry.khronos.org/OpenGL/extensions/ARB/WGL_ARB_create_context.txt) for creating an OpenGL context, for choosing a pixel format [`wglChoosePixelFormatARB`](https://registry.khronos.org/OpenGL/extensions/ARB/WGL_ARB_pixel_format.txt) for OpenGL and optionally [`wglSwapIntervalEXT`](https://registry.khronos.org/OpenGL/extensions/EXT/WGL_EXT_swap_control.txt) for changing the swap interval.  
 
 It needs to load these functions because they're extension functions provided by the hardware vendor. By default, `wglCreateContext` or `glXCreateContext` will create an OpenGL ~1.0 context that probably uses software rendering. 
 
