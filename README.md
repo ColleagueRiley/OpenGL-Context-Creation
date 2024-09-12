@@ -25,28 +25,31 @@ X11 (GLX): [`glXCreateContextAttribsARB`](https://registry.khronos.org/OpenGL/ex
 
 WinAPI (WGL):  [`wglCreateContextAttribsARB`](https://registry.khronos.org/OpenGL/extensions/ARB/WGL_ARB_create_context.txt) for creating an OpenGL context, for choosing a pixel format [`wglChoosePixelFormatARB`](https://registry.khronos.org/OpenGL/extensions/ARB/WGL_ARB_pixel_format.txt) for OpenGL and optionally [`wglSwapIntervalEXT`](https://registry.khronos.org/OpenGL/extensions/EXT/WGL_EXT_swap_control.txt) for changing the swap interval.  
 
-It needs to load these functions because they're extension functions provided by the hardware vendor. By default, `wglCreateContext` or `glXCreateContext` will create an OpenGL ~1.0 context that probably uses software rendering. 
+It needs to load these functions because they're extension functions provided by the hardware vendor. By default, [`wglCreateContext`](https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-wglcreatecontext) or [`glXCreateContext`](https://registry.khronos.org/OpenGL-Refpages/gl2.1/xhtml/glXCreateContext.xml) will create an OpenGL ~1.0 context that probably uses software rendering. 
 
 To load the extension functions RGFW has to start by defining them.
-```c
-// X11 (GLX):
-	typedef GLXContext(*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-	static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
-	
-//	(optional)
-	typedef void ( *PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
-	PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
 
-// Windows (WGL):
-	typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC hdc, HGLRC hglrc, const int *attribList);
-	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
+### X11 (GLX):
+```c
+typedef GLXContext(*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
 	
-	typedef HRESULT (APIENTRY* PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
-	static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
-	
+//(optional)
+typedef void ( *PFNGLXSWAPINTERVALEXTPROC) (Display *dpy, GLXDrawable drawable, int interval);
+PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = NULL;
+```
+
+### Windows (WGL)
+```c
+typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC hdc, HGLRC hglrc, const int *attribList);
+PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
+
+typedef HRESULT (APIENTRY* PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
+static PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
+
 //	(optional)
-	typedef BOOL(APIENTRY* PFNWGLSWAPINTERVALEXTPROC)(int interval);
-	static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
+typedef BOOL(APIENTRY* PFNWGLSWAPINTERVALEXTPROC)(int interval);
+static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 ```
 
 Once the functions are defined, RGFW loads the functions with these API calls:
